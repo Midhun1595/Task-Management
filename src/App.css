@@ -1,0 +1,102 @@
+/* Default Light Mode */
+body.light-mode {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #fff;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input, textarea, select, button {
+  padding: 10px;
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  
+  height:40px;
+  
+}
+
+button:hover {
+  background-color: #974dec;
+}
+
+.theme-toggle {
+  background-color: #2196F3;
+  color:white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background-color: #1e88e5;
+}
+
+/* Task List Styles */
+.task-list {
+  margin-top: 30px;
+}
+
+.task {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.task.completed {
+  background-color: #6b6ca8;
+}
+
+.task-actions button {
+  margin-left: 5px;
+}
+
+.btn-primary{
+   color: white;
+}
+
+.btn-danger {
+  color: white
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  form {
+    width: 100%;
+  }
+
+  .task-list {
+    width: 100%;
+  }
+}
+
+.btn btn-infor{
+  color: green;
+}
