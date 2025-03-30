@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import axios from 'axios';
 
 // Custom Hook for managing form input
 function useForm(initialState) {
@@ -165,8 +166,8 @@ const App = () => {
             </div>
             <div className="task-actions">
               <button className="btn btn-success btn-sm" onClick={() => handleComplete(task.id)}>{task.completed ? 'Completed' : 'Mark as Completed'}</button>
-              <button className="btn btn-warning btn-sm" onClick={() => handleEdit(task)}>Edit</button>
-              <button className="btn btn-danger btn-sm" onClick={() => handleDelete(task.id)}>Delete</button>
+              <button className="btn btn-warning btn-sm" onClick={() => handleEdit(task)}><i className="fas fa-edit"></i> {/* Edit Icon */}</button>
+              <button className="btn btn-danger btn-sm" onClick={() => handleDelete(task.id)}><i className="fas fa-trash"></i> {/* Delete Icon */}</button>
             </div>
           </div>
         ))}
