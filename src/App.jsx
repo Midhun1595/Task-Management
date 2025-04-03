@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'antd/dist/reset.css';
+import { Button, Modal, Input, Select, DatePicker, Table, Switch, message } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, CheckOutlined } from '@ant-design/icons';
+import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import './App.css';
-import axios from 'axios';
 
-// Custom Hook for managing form input
-function useForm(initialState) {
-  const [values, setValues] = useState(initialState);
-  const handleChange = (e) => {
-    setValues({ ...values, [e.target.name]: e.target.value });
-  };
-  return { values, handleChange, setValues };
-}
+const { Option } = Select;
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
@@ -19,7 +14,7 @@ const App = () => {
   const [filterPriority, setFilterPriority] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { values, handleChange, setValues } = useForm({ title: '', description: '', dueDate: '', priority: 'low', category: '' });
+  const [taskData, setTaskData] = useState({ title: '', description: '', dueDate: '', priority: 'low' });
 
   useEffect(() => {
     const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -29,7 +24,9 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    if (tasks.length > 0) {
     localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
   }, [tasks]);
 
   useEffect(() => {
@@ -37,141 +34,106 @@ const App = () => {
     document.body.className = isDarkMode ? 'dark-mode' : 'light-mode';
   }, [isDarkMode]);
 
-  const handleSaveTask = (e) => {
-    e.preventDefault();
-    if (!values.title.trim() || !values.description.trim()) return;
-    const newTask = { ...values, completed: false, id: editingTask ? editingTask.id : Date.now() };
+  const handleSaveTask = () => {
+    if (!taskData.title.trim() || !taskData.description.trim()) {
+      return message.error('Title and Description are required');
+    }
+    const newTask = { ...taskData, completed: false, id: editingTask ? editingTask.id : Date.now() };
+    let updatedTasks;
     if (editingTask) {
-      setTasks(tasks.map((task) => (task.id === editingTask.id ? newTask : task)));
+      updatedTasks = tasks.map(task => (task.id === editingTask.id ? newTask : task));
       setEditingTask(null);
     } else {
-      setTasks([...tasks, newTask]);
+      updatedTasks = [...tasks, newTask];
     }
-    setValues({ title: '', description: '', dueDate: '', priority: 'low', category: '' });
+
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks)); 
+    setTaskData({ title: '', description: '', dueDate: '', priority: 'low' });
     setShowModal(false);
   };
 
-  const handleEdit = (task) => {
-    setEditingTask(task);
-    setValues({ title: task.title, description: task.description, dueDate: task.dueDate, priority: task.priority, category: task.category });
-    setShowModal(true);
-  };
 
   const handleDelete = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks)); 
   };
 
   const handleComplete = (id) => {
-    setTasks(tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task)));
+    const updatedTasks = tasks.map(task =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    );
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks)); // ✅ Save tasks after completion toggle
   };
+
+
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
 
   const filteredTasks = filterPriority === 'all' ? tasks : tasks.filter(task => task.priority === filterPriority);
-  const searchFilteredTasks = filteredTasks.filter(
-    (task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()) || task.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const searchFilteredTasks = filteredTasks.filter(task => task.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const columns = [
+    { title: 'Title', dataIndex: 'title', key: 'title' },
+    { title: 'Description', dataIndex: 'description', key: 'description' },
+    { title: 'Due Date', dataIndex: 'dueDate', key: 'dueDate' },
+    { 
+      title: 'Priority', 
+      dataIndex: 'priority', 
+      key: 'priority',
+      render: (priority) => (
+        <span className={`priority-${priority}`}>
+          {priority.charAt(0).toUpperCase() + priority.slice(1)}
+        </span>
+      )
+    },
+    { 
+      title: 'Status', dataIndex: 'completed', key: 'completed',
+      render: (completed) => completed ? <CheckCircleTwoTone twoToneColor="#52c41a" /> : <CloseCircleTwoTone twoToneColor="#eb2f96" />
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <div className="action-buttons">
+          <Button icon={<EditOutlined />} onClick={() => { setEditingTask(record); setTaskData(record); setShowModal(true); }} />
+          <Button type="primary" icon={record.completed ? <CloseCircleTwoTone twoToneColor="#eb2f96" /> : <CheckCircleTwoTone twoToneColor="#52c41a" />} 
+            onClick={() => handleComplete(record.id)} style={{ marginLeft: 8 }} />
+          <Button type="danger" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} style={{ marginLeft: 8 }} />
+        </div>
+      )
+    }
+  ];
 
   return (
-    <div className="container">
-      <h1>Task Management Dashboard</h1>
-      <div className="d-flex justify-content-between mb-3">
-        <button className="btn btn-secondary" onClick={toggleTheme}>
-          {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        </button>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>Add Task</button>
+    <div className={`app-container ${isDarkMode ? 'dark-mode' : 'light-mode'}`}> 
+      <h1 className="app-title">Task Management Dashboard</h1>
+      <div className="controls">
+        <Switch checked={isDarkMode} onChange={toggleTheme} className="theme-switch" checkedChildren="Dark" unCheckedChildren="Light" />
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowModal(true)} className="add-task-button">Add Task</Button>
       </div>
-
-      <input type="text" placeholder="Search tasks..." className="form-control mb-3" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-      
-       {/* Bootstrap Modal for adding/editing tasks */}
-       <div className={`modal fade ${showModal ? 'show' : ''}`} tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }} aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">{editingTask ? 'Edit Task' : 'Add Task'}</h5>
-              <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
-            </div>
-            <div className="modal-body">
-              <form onSubmit={handleSaveTask}>
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    name="title"
-                    value={values.title}
-                    onChange={handleChange}
-                    placeholder="Task Title"
-                    required
-                    className="form-control"
-                  />
-                </div>
-                <div className="mb-3">
-                  <textarea
-                    name="description"
-                    value={values.description}
-                    onChange={handleChange}
-                    placeholder="Task Description"
-                    required
-                    className="form-control"
-                  />
-                </div>
-                <div className="mb-3">
-                  <input
-                    type="date"
-                    name="dueDate"
-                    value={values.dueDate}
-                    onChange={handleChange}
-                    required
-                    className="form-control"
-                  />
-                </div>
-                <div className="mb-3">
-                  <select name="priority" value={values.priority} onChange={handleChange} className="form-select">
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-                <div className="mb-3">
-                  
-                </div>
-                <button type="submit" className="btn btn-primary">
-                  {editingTask ? 'Update Task' : 'Add Task'}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h3>Filter by Priority</h3>
-      <div className="btn-group mb-3">
-        <button className="btn btn-outline-primary" onClick={() => setFilterPriority('all')}>All</button>
-        <button className="btn btn-outline-success" onClick={() => setFilterPriority('low')}>Low</button>
-        <button className="btn btn-outline-warning" onClick={() => setFilterPriority('medium')}>Medium</button>
-        <button className="btn btn-outline-danger" onClick={() => setFilterPriority('high')}>High</button>
-      </div>
-
-      <h3>Task List</h3>
-      <div className="task-list">
-        {searchFilteredTasks.length === 0 ? <p>No tasks found</p> : searchFilteredTasks.map((task) => (
-          <div key={task.id} className={`task ${task.completed ? 'completed' : ''}`}>
-            <div className="task-info">
-              <h3>{task.title}</h3>
-              <p>{task.description}</p>
-              <p>Due: {task.dueDate} | Priority: {task.priority}</p>
-              {task.category && <p>Category: {task.category}</p>}
-            </div>
-            <div className="task-actions">
-              <button className="btn btn-success btn-sm" onClick={() => handleComplete(task.id)}>{task.completed ? 'Completed' : 'Mark as Completed'}</button>
-              <button className="btn btn-warning btn-sm" onClick={() => handleEdit(task)}><i className="fas fa-edit"></i> {/* Edit Icon */}</button>
-              <button className="btn btn-danger btn-sm" onClick={() => handleDelete(task.id)}><i className="fas fa-trash"></i> {/* Delete Icon */}</button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <Input placeholder="Search tasks..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="search-bar" />
+      <Select value={filterPriority} onChange={setFilterPriority} className="filter-select">
+        <Option value="all">All</Option>
+        <Option value="low">Low</Option>
+        <Option value="medium">Medium</Option>
+        <Option value="high">High</Option>
+      </Select>
+      <Table columns={columns} dataSource={searchFilteredTasks} rowKey="id" className="task-table" />
+      <Modal title={editingTask ? 'Edit Task' : 'Add Task'} open={showModal} onCancel={() => setShowModal(false)} onOk={handleSaveTask} className="task-modal">
+        <Input placeholder="Task Title" value={taskData.title} onChange={(e) => setTaskData({ ...taskData, title: e.target.value })} className="input-field" />
+        <Input.TextArea placeholder="Description" value={taskData.description} onChange={(e) => setTaskData({ ...taskData, description: e.target.value })} className="input-field" />
+        <DatePicker onChange={(date, dateString) => setTaskData({ ...taskData, dueDate: dateString })} className="date-picker" />
+        <Select value={taskData.priority} onChange={(value) => setTaskData({ ...taskData, priority: value })} className="priority-select">
+          <Option value="low">Low</Option>
+          <Option value="medium">Medium</Option>
+          <Option value="high">High</Option>
+        </Select>
+      </Modal>
     </div>
   );
 };

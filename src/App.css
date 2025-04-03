@@ -1,102 +1,140 @@
-/* Default Light Mode */
-body.light-mode {
-  background-color: #f0f0f0;
+/* General Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.3s ease-in-out;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+  transition: background 0.3s ease-in-out;
+  background: white;
+}
+
+h1 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Dark Mode & Light Mode */
+.light-mode {
+  background: #f9f9f9;
   color: #333;
 }
 
-body.dark-mode {
-  background-color: #121212;
+.dark-mode {
+  background: #181818;
   color: #fff;
 }
 
-/* Container */
-.container {
-  width: 100%;
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
+.dark-mode .app-container {
+  background: #242424;
+  box-shadow: 0px 5px 20px rgba(255, 255, 255, 0.1);
 }
 
-form {
+/* Controls */
+.top-controls {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-input, textarea, select, button {
-  padding: 10px;
-  font-size: 16px;
-  margin: 5px 0;
+.filter-select {
+  margin-bottom: 15px;
+  width: 20%;
+  border-radius: 6px;
+  margin-left: 12px;
 }
 
-button {
-  background-color: #4CAF50;
+.add-task-button {
+  margin-left: 400px;
+  background-color: #ffc107;
+  color: black;
+}
+
+.search-bar {
+  width: 40%;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  padding: 7px;
+  border: 1px solid #ccc;
+}
+
+/* Table Styles */
+.ant-table {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ant-table-thead > tr > th {
+  background: #007bff;
   color: white;
-  cursor: pointer;
-  
-  height:40px;
-  
+  text-align: center;
+  font-weight: bold;
+}
+
+.ant-table-tbody > tr > td {
+  text-align: center;
+  padding: 12px;
+}
+
+/* Priority Badges */
+.priority-low {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.priority-medium {
+  color: #77a00d;
+  font-weight: bold;
+}
+
+.priority-high {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Buttons */
+button {
+  transition: all 0.3s ease-in-out;
+  border-radius: 5px;
 }
 
 button:hover {
-  background-color: #974dec;
+  transform: scale(1.05);
 }
 
-.theme-toggle {
-  background-color: #2196F3;
-  color:white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
+/* Modal Styling */
+.ant-modal-content {
+  border-radius: 12px;
+  padding: 20px;
 }
 
-.theme-toggle:hover {
-  background-color: #1e88e5;
+.ant-modal-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
 }
 
-/* Task List Styles */
-.task-list {
-  margin-top: 30px;
-}
-
-.task {
-  display: flex;
-  justify-content: space-between;
+.input-field, .date-picker {
+  width: 100%;
+  margin-bottom: 15px;
+  border-radius: 6px;
   padding: 10px;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
 }
 
-.task.completed {
-  background-color: #6b6ca8;
+/* Input & Select */
+.ant-input, .ant-select-selector, .ant-picker {
+  border-radius: 6px !important;
 }
 
-.task-actions button {
-  margin-left: 5px;
-}
-
-.btn-primary{
-   color: black;
-}
-
-.btn-danger {
-  color: white
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
-
-  form {
-    width: 100%;
-  }
-
-  .task-list {
-    width: 100%;
-  }
-}
-
-.btn btn-infor{
-  color: green;
-}
